@@ -5,19 +5,6 @@ function finish(matrix, stack = []) {
       if (square === 0) {
         stack.push([i, j]);
 
-        // console.log(
-        //   "SQUARE IS ZERO!",
-        //   "\n",
-        //   "matrix:",
-        //   matrix,
-        //   "stack:",
-        //   stack,
-        //   "i:",
-        //   i,
-        //   "j:",
-        //   j
-        // );
-
         // fill square with number
         const fill = fillSquare(matrix, stack, i, j);
         if (fill && fill[2] === false) return false;
@@ -29,22 +16,27 @@ function finish(matrix, stack = []) {
 }
 
 function fillSquare(mtrx, stck, i, j, d = 1) {
-  if (d < 9) {
-    mtrx[i][j] = d;
-    const candidate = checkPuzzle(mtrx);
-    console.log(candidate);
-    if (candidate === true) {
-      return [mtrx, stck, true];
-    } else {
-      return fillSquare(mtrx, stck, i, j, d + 1);
-    }
-  } else if (d === 9) {
+  // if we've tried all numbers for d then backtrack
+  if (d > 9) {
     if (stck.length === 0) {
       return [mtrx, stck, false];
     }
+
     const [prevI, prevJ] = stck.pop();
 
-    return fillSquare(mtrx, stck, prevI, prevJ, d + 1);
+    return fillSquare(mtrx, stck, prevI, prevJ);
+  }
+
+  // try filling the square with d
+  mtrx[i][j] = d;
+  const candidate = checkPuzzle(mtrx);
+
+  if (candidate === true) {
+    // if valid, move to the next square
+    return fillSquare(mtrx, stck, i, j + 1);
+  } else {
+    // if not valid, try the next number
+    return fillSquare(mtrx, stck, i, j, d + 1);
   }
 }
 
@@ -99,3 +91,14 @@ export const toSolve = [
 
 // console.log(checkPuzzle(wrong));
 console.log(finish(toSolve));
+
+/**
+ * Issues:
+ * fillSquare function is assigning incorrect values to squares that start as 0. The logic is flawed.
+ * It doesn't properly check if the number is valid according to actual sudoku rules. return from checkPuzzzle is ineffective for backtracking.
+ * When a number is invalid, the function should backtrack to the previous square and try the next number, but it currently does not handle it correctly. This leads to the same number being placed repeatedly.
+ * The function sets the value of the square to d without checking if it's valid. If checkPuzzle returns false, the function should not proceed to the next number without resetting the square back to 0.
+ *
+ *
+ *
+ */
