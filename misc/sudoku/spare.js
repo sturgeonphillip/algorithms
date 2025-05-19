@@ -1,68 +1,82 @@
-function finish(matrix, stack = []) {
+function finish(matrix) {
+  const stack = []
+
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
-      let square = matrix[i][j];
-      if (square === 0) {
-        stack.push([i, j]);
-
-        // fill square with number
-        const fill = fillSquare(matrix, stack, i, j);
-        if (fill && fill[2] === false) return false;
+      if (matrix[i][j] === 0) {
+        stack.push([i, j])
       }
     }
   }
 
-  return matrix;
+  // fill squares from first empty square
+  return matrix.every((x) => x.includes(0))
+    ? fillSquare(matrix, stack)
+    : checkPuzzle(matrix)
 }
 
-function fillSquare(mtrx, stck, i, j, d = 1) {
-  // if we've tried all numbers for d then backtrack
-  if (d > 9) {
-    if (stck.length === 0) {
-      return [mtrx, stck, false];
+function fillSquare(matrix, stack) {
+  if (stack.length === 0) {
+    // solved
+    return matrix
+  }
+
+  // get next empty square
+  const [i, j] = stack.pop()
+
+  for (let d = 1; d <= 9; d++) {
+    // try filling the square with d
+    matrix[i][j] = d
+
+    if (checkPuzzle(matrix)) {
+      const result = fillSquare(matrix, stack)
+
+      // if puzzle is solved return the matrix
+      if (result) {
+        return result
+      }
     }
 
-    const [prevI, prevJ] = stck.pop();
-
-    return fillSquare(mtrx, stck, prevI, prevJ);
+    // reset the square if not valid
+    matrix[i][j] = 0
   }
 
-  // try filling the square with d
-  mtrx[i][j] = d;
-  const candidate = checkPuzzle(mtrx);
+  // push square back onto the stack if no valid number
+  stack.push([i, j])
 
-  if (candidate === true) {
-    // if valid, move to the next square
-    return fillSquare(mtrx, stck, i, j + 1);
-  } else {
-    // if not valid, try the next number
-    return fillSquare(mtrx, stck, i, j, d + 1);
-  }
+  // no solution found
+  return false
 }
 
 function checkPuzzle(matrix) {
-  const rowSets = Array.from({ length: 9 }, () => new Set());
-  const colSets = Array.from({ length: 9 }, () => new Set());
-  const boxSets = Array.from({ length: 9 }, () => new Set());
+  const rowSets = Array.from({ length: 9 }, () => new Set())
+  const colSets = Array.from({ length: 9 }, () => new Set())
+  const boxSets = Array.from({ length: 9 }, () => new Set())
 
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
-      const val = matrix[r][c];
+      const val = matrix[r][c]
 
-      if (val === 0) continue;
+      if (val === 0) continue
 
-      const boxIdx = Math.floor(r / 3) * 3 + Math.floor(c / 3);
+      const boxIdx = Math.floor(r / 3) * 3 + Math.floor(c / 3)
 
-      rowSets[r].add(val);
-      colSets[c].add(val);
-      boxSets[boxIdx].add(val);
+      if (
+        rowSets[r].has(val) ||
+        colSets[c].has(val) ||
+        boxSets[boxIdx].has(val)
+      ) {
+        // found a duplicate
+        return false
+      }
 
-      if (rowSets[r].has(val)) return false; // [ false, 'duplicate in row:', r, val]
-      if (colSets[c].has(val)) return false; // [ false, 'duplicate in column:', c, val]
-      if (boxSets[boxIdx].has(val)) return false; // [ false, 'duplicate in box:', boxIdx, 'value:', val]
+      rowSets[r].add(val)
+      colSets[c].add(val)
+      boxSets[boxIdx].add(val)
     }
   }
-  return true;
+  // no duplicates
+  return true
 }
 
 export const wrong = [
@@ -75,7 +89,7 @@ export const wrong = [
   [4, 1, 7, 9, 5, 2, 6, 3, 8],
   [3, 5, 2, 6, 4, 8, 9, 7, 1],
   [6, 9, 8, 1, 7, 3, 4, 2, 5],
-];
+]
 
 export const toSolve = [
   [0, 7, 0, 3, 6, 9, 5, 0, 0],
@@ -87,10 +101,10 @@ export const toSolve = [
   [4, 1, 7, 0, 5, 0, 0, 0, 8],
   [0, 5, 0, 6, 0, 8, 9, 0, 0],
   [0, 0, 8, 0, 0, 3, 4, 0, 0],
-];
+]
 
-// console.log(checkPuzzle(wrong));
-console.log(finish(toSolve));
+console.log(finish(wrong))
+console.log(finish(toSolve))
 
 /**
  * Issues:
@@ -98,6 +112,7 @@ console.log(finish(toSolve));
  * It doesn't properly check if the number is valid according to actual sudoku rules. return from checkPuzzzle is ineffective for backtracking.
  * When a number is invalid, the function should backtrack to the previous square and try the next number, but it currently does not handle it correctly. This leads to the same number being placed repeatedly.
  * The function sets the value of the square to d without checking if it's valid. If checkPuzzle returns false, the function should not proceed to the next number without resetting the square back to 0.
+ *
  *
  *
  *

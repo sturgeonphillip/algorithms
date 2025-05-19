@@ -6,7 +6,7 @@ export function check(matrix) {
   const rowSets = Array.from({ length: 9 }, () => new Set())
   const colSets = Array.from({ length: 9 }, () => new Set())
   const boxSets = Array.from({ length: 9 }, () => new Set())
-  
+
   // traverse
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
@@ -15,9 +15,12 @@ export function check(matrix) {
 
       const boxIdx = Math.floor(r / 3) * 3 + Math.floor(c / 3)
 
-      if (rowSets[r].has(val)) return false // [ false, 'duplicate in row:', r, val]
-      if (colSets[c].has(val)) return false // [ false, 'duplicate in column:', c, val]
-      if (boxSets[boxIdx].has(val)) return false // [ false, 'duplicate in box:', boxIdx, 'value:', val]
+      if (rowSets[r].has(val)) return false
+      // return [ false, 'duplicate in row:', r, val]
+      if (colSets[c].has(val)) return false
+      // return [ false, 'duplicate in column:', c, val]
+      if (boxSets[boxIdx].has(val)) return false
+      // return [ false, 'duplicate in box:', boxIdx, 'value:', val]
 
       rowSets[r].add(val)
       colSets[c].add(val)
