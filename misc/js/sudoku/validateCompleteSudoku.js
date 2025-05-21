@@ -44,7 +44,7 @@ export function validateCompleteSudoku(puzzle) {
       }
       complete.colErrors.push({
         reason: `Column ${c} is invalid`,
-        locations: 'column',
+        location: 'column',
         index: c,
         missing: missing.toString(),
       })
