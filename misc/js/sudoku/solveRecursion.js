@@ -2,7 +2,7 @@ import { check } from './check.js'
 import { wrong, aToSolve } from './puzzles.js'
 
 // uses DFS-style recursion with a stack-fed path of empty squares
-export function solveStackRecursion(matrix) {
+export function solveRecursion(matrix) {
   // return false if wrong, complete puzzle if true
   const stack = []
 
@@ -15,26 +15,24 @@ export function solveStackRecursion(matrix) {
   }
 
   // fill squares from first empty square
-  return matrix.every((x) => x.includes(0))
-    ? fillSquare(matrix, stack)
-    : check(matrix)
+  return stack.length === 0 ? matrix : fillSquare(matrix, stack)
 }
 
-function fillSquare(matrix, stack) {
-  if (stack.length === 0) {
+function fillSquare(matrix, stack, idx = 0) {
+  if (idx === stack.length) {
     // solved
     return matrix
   }
 
   // get next empty square
-  const [i, j] = stack.pop()
+  const [i, j] = stack[idx]
 
   for (let d = 1; d <= 9; d++) {
     // try filling the square with d
     matrix[i][j] = d
 
     if (check(matrix)) {
-      const result = fillSquare(matrix, stack)
+      const result = fillSquare(matrix, stack, idx + 1)
 
       // if puzzle is solved return the matrix
       if (result) {
@@ -53,5 +51,5 @@ function fillSquare(matrix, stack) {
   return false
 }
 
-console.log(solveStackRecursion(wrong))
-console.log(solveStackRecursion(aToSolve))
+// console.log(solveStackRecursion(wrong))
+console.log(solveRecursion(aToSolve))

@@ -1,8 +1,10 @@
-// do i need a defensive check that the input matrix is 9 x 9 and its vals are 0 - 9?
-
-// optimized to:
+import { isValidInput } from './isValidInput.js'
 // reduce overhead and makes the logic easier to parallelize
 export function check(matrix) {
+  if (!isValidInput(matrix)) {
+    throw new Error('Invalid Sudoku matrix input.')
+  }
+
   const rowSets = Array.from({ length: 9 }, () => new Set())
   const colSets = Array.from({ length: 9 }, () => new Set())
   const boxSets = Array.from({ length: 9 }, () => new Set())
@@ -28,6 +30,6 @@ export function check(matrix) {
       boxSets[boxIdx].add(val)
     }
   }
-  // no repeats, all sets of all rows, columns, and boxes are unique
+  // no repeats - all sets of all rows, columns, and boxes are unique
   return true
 }
